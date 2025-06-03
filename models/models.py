@@ -1,8 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Numeric
-from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.orm import relationship
 
-
-Base = declarative_base()
+from backend.db import Base
 
 
 class Provider(Base):
@@ -11,8 +10,7 @@ class Provider(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(100), unique=True)
     email = Column(String(255))
-
-    games = relationship("Game", back_populates="provider")
+    games = relationship("Game", back_populates="provider", uselist=True)
 
 
 class Game(Base):
@@ -24,4 +22,4 @@ class Game(Base):
     is_published = Column(Boolean, default=True)
     provider_id = Column(Integer, ForeignKey("providers.id"))
 
-    provider = relationship("Provider", back_populates="games")
+    provider = relationship("Provider", back_populates="games", uselist=False)

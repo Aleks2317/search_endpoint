@@ -1,22 +1,19 @@
-from fastapi import FastAPI, Depends, HTTPException, Query
+from typing import Annotated
+from fastapi import FastAPI, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from models import Game, Provider
-from database import get_db
-from typing import Optional
-from pydantic import BaseModel
+
+from models.models import Game, Provider
+from dto.search_schems import SearchResult
+from backend.database import get_db
 
 
 app = FastAPI(title="Search Game or Provider")
 
-class SearchResult(BaseModel):
-    games: list[int] = []
-    providers: list[int] = []
 
-
-@app.get("/search/", response_model=SearchResult, tags=["Search"])
+@app.get("/search/", tags=["Search"])
 async def search(
-        query: Optional[str] = Query(None, min_length=2, max_length=100),
+        query: Annotated[str | None, Query(min_length=2, max_length=100)] = None,
         db: AsyncSession = Depends(get_db)
 ) -> SearchResult:
     result = SearchResult()
@@ -30,8 +27,9 @@ async def search(
         providers_stmt = select(Provider.id).where(Provider.name.ilike(f"%{query}%"))
         providers_result = await db.execute(providers_stmt)
         result.providers = [row[0] for row in providers_result]
-
     return result
+
+
 
 
 
