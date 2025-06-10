@@ -2,7 +2,7 @@ services:
   web:
     # Берем Dockerfile из каталога app
     build:
-      context: .
+      context: ./
       dockerfile: ./Dockerfile
     # Запускаем тестовый сервер
     command: uvicorn main:app --host 0.0.0.0
@@ -14,12 +14,15 @@ services:
 
   db:
     image: postgres:16
+    restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
       - POSTGRES_USER=alex
       - POSTGRES_PASSWORD=123
       - POSTGRES_DB=gamedb
+    ports:
+      - 5433:5432
 
 volumes:
   postgres_data:
